@@ -18,8 +18,7 @@ const BiochemicalIndicatorDraftPage: React.FC = () => {
       <h1 className="page-title mb-3">Черновик</h1>
       <Form>
         <h2 className="section-title mb-3">Медиа</h2>
-        
-        {/* Изображение */}
+
         <Form.Group className="mb-3">
           <Form.Label className="fw-bold">Изображение</Form.Label>
           <div className="border rounded p-3 text-center d-flex justify-content-center align-items-center mb-2" style={{ height: '200px', backgroundColor: '#f8f9fa' }}>
@@ -32,7 +31,6 @@ const BiochemicalIndicatorDraftPage: React.FC = () => {
           <Form.Control type="file" accept="image/*" onChange={(e: any) => handleFileChange(e, 'image')} />
         </Form.Group>
 
-        {/* Видео */}
         <Form.Group className="mb-3">
           <Form.Label className="fw-bold">Видео</Form.Label>
           <div className="border rounded p-3 text-center d-flex justify-content-center align-items-center mb-2" style={{ height: '200px', backgroundColor: '#f8f9fa' }}>

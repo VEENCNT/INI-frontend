@@ -29,7 +29,6 @@ const BiochemicalIndicatorFeedPage:
       if (indicator.indicatorId === id) {
         const hasLiked = indicator.likes.includes(currentUserId);
         
-        // Если лайк уже есть - убираем ID пользователя. Если нет - добавляем.
         const newLikes = hasLiked
           ? indicator.likes.filter(userId => userId !== currentUserId)
           : [...indicator.likes, currentUserId];
@@ -49,7 +48,6 @@ const BiochemicalIndicatorFeedPage:
     const container = feedContainerRef.current;
     const cardHeight = container.clientHeight;
     
-    // На время программной прокрутки отключаем привязку, чтобы не было рывков
     container.style.scrollSnapType = 'none';
     
     const currentIndex = Math.round(container.scrollTop / cardHeight);
@@ -59,7 +57,6 @@ const BiochemicalIndicatorFeedPage:
       behavior: 'smooth'
     });
 
-    // Возвращаем snap через 500мс (когда анимация завершится)
     setTimeout(() => {
       if (container) container.style.scrollSnapType = 'y mandatory';
     }, 500);
@@ -68,12 +65,10 @@ const BiochemicalIndicatorFeedPage:
   const handleScroll = () => {
     if (!feedContainerRef.current || indicators.length === 0) return;
     
-    // Очищаем предыдущий таймер
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current);
     }
 
-    // Ждем 100мс после окончания скролла, чтобы не прыгать во время движения
     scrollTimeoutRef.current = window.setTimeout(() => {
       const container = feedContainerRef.current;
       if (!container) return;
@@ -81,13 +76,10 @@ const BiochemicalIndicatorFeedPage:
       const cardHeight = container.clientHeight;
       const currentIndex = Math.round(container.scrollTop / cardHeight);
 
-      // Если доскроллили до конца
       if (currentIndex >= indicators.length * 2) {
-        // Отключаем snap
         container.style.scrollSnapType = 'none';
-        // Мгновенно прыгаем
         container.scrollTop = (currentIndex - indicators.length) * cardHeight;
-        // Включаем snap обратно на следующем кадре
+
         requestAnimationFrame(() => {
           if (container) container.style.scrollSnapType = 'y mandatory';
         });

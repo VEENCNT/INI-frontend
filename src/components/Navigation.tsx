@@ -6,7 +6,6 @@ const Navigation: React.FC = () => {
 
   return (
     <div className="bottom-navbar">
-      {/* Лента */}
       <Link 
         to="/biochemical-indicator/feed" 
         className={`nav-item ${location.pathname === '/biochemical-indicator/feed' || location.pathname === '/' ? 'active' : ''}`}
@@ -17,7 +16,6 @@ const Navigation: React.FC = () => {
         <span className="nav-label">Лента</span>
       </Link>
 
-      {/* Добавить (неактивно) */}
       <div className="nav-item disabled">
         <div className="nav-icon-wrapper">
           <img src="/images/add.svg" alt="Добавить" className="nav-icon-img" />
@@ -25,7 +23,6 @@ const Navigation: React.FC = () => {
         <span className="nav-label">Добавить</span>
       </div>
 
-      {/* Плитка */}
       <Link to="/biochemical-indicator/grid" className={`nav-item ${location.pathname === '/biochemical-indicator/grid' ? 'active' : ''}`}>
         <div className="nav-icon-wrapper">
           <img src="/images/grid.svg" alt="Плитка" className="nav-icon-img" />
@@ -33,7 +30,6 @@ const Navigation: React.FC = () => {
         <span className="nav-label">Плитка</span>
       </Link>
 
-      {/* Вход (неактивно) */}
       <div className="nav-item disabled">
         <div className="nav-icon-wrapper">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="nav-icon-img" viewBox="0 0 16 16">

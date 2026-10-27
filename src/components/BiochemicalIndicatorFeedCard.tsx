@@ -55,7 +55,6 @@ const BiochemicalIndicatorFeedCard: React.FC<BiochemicalIndicatorFeedCardProps> 
           <span className="action-text">{likesCount}</span>
         </div>
         
-        {/* Кнопка "Следующий" с обработчиком onClick */}
         <div className="action-item">
           <div className="action-btn" onClick={onNext} style={{ cursor: 'pointer' }}>
             <img src="/images/next.svg" alt="Следующий" width="24" />
