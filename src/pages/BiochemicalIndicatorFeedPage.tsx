@@ -8,7 +8,8 @@ interface BiochemicalIndicatorFeedPageProps {
   initialIndicators: BiochemicalIndicator[];
 }
 
-const BiochemicalIndicatorFeedPage: React.FC<BiochemicalIndicatorFeedPageProps> = ({ initialIndicators }) => {
+const BiochemicalIndicatorFeedPage: 
+  React.FC<BiochemicalIndicatorFeedPageProps> = ({ initialIndicators }) => {
   const [indicators, setIndicators] = useState<BiochemicalIndicator[]>(initialIndicators);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   
@@ -20,7 +21,9 @@ const BiochemicalIndicatorFeedPage: React.FC<BiochemicalIndicatorFeedPageProps> 
 
   let baseIndex = 0;
   if (indicatorIdParam) {
-    const foundIndex = indicators.findIndex(ind => ind.indicatorId === Number(indicatorIdParam));
+    const foundIndex = indicators.findIndex(indicator => 
+      indicator.indicatorId === Number(indicatorIdParam)
+    );
     if (foundIndex !== -1) {
       baseIndex = foundIndex;
     }
