@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import type { BiochemicalIndicator } from '../types';
 import { currentUserId } from '../data';
 
@@ -12,6 +13,8 @@ interface BiochemicalIndicatorGridCardProps {
 const BiochemicalIndicatorGridCard: React.FC<BiochemicalIndicatorGridCardProps> = ({ indicator, onLike, onDelete }) => {
   const isLiked = indicator.likes.includes(currentUserId);
   const likesCount = indicator.likes.length;
+
+  const navigate = useNavigate();
 
   return (
     <Card className="h-100 shadow-none indicator-card">
@@ -42,7 +45,13 @@ const BiochemicalIndicatorGridCard: React.FC<BiochemicalIndicatorGridCardProps> 
               <span className="like-count">{likesCount}</span>
             </Button>
             
-            <Button variant="purple" className="btn-small flex-grow-1">Подробнее</Button>
+            <Button 
+              variant="purple" 
+              className="btn-small flex-grow-1"
+              onClick={() => navigate(`/biochemical-indicator/feed?indicatorId=${indicator.indicatorId}`)}
+            >
+              Подробнее
+            </Button>
           </div>
           
           <Button 
