@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import type { BiochemicalIndicator } from '../types';
 import BiochemicalIndicatorFeedCard from '../components/BiochemicalIndicatorFeedCard';
 import { currentUserId } from '../data';
@@ -7,28 +8,35 @@ interface BiochemicalIndicatorFeedPageProps {
   initialIndicators: BiochemicalIndicator[];
 }
 
-const BiochemicalIndicatorFeedPage: 
-  React.FC<BiochemicalIndicatorFeedPageProps> = ({ initialIndicators }) => {
-  const [indicators, setIndicators] = useState(initialIndicators);
+const BiochemicalIndicatorFeedPage: React.FC<BiochemicalIndicatorFeedPageProps> = ({ initialIndicators }) => {
+  const [indicators, setIndicators] = useState<BiochemicalIndicator[]>(initialIndicators);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   
-  const feedContainerRef = useRef<HTMLDivElement>(null);
-  const scrollTimeoutRef = useRef<number | null>(null);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-  const loopedIndicators = [...indicators, ...indicators, ...indicators];
+  const indicatorIdParam = searchParams.get('indicatorId');
+  const nextParam = searchParams.get('next');
 
-  useEffect(() => {
-    if (feedContainerRef.current && indicators.length > 0) {
-      const cardHeight = feedContainerRef.current.clientHeight;
-      feedContainerRef.current.scrollTop = indicators.length * cardHeight;
+  let baseIndex = 0;
+  if (indicatorIdParam) {
+    const foundIndex = indicators.findIndex(ind => ind.indicatorId === Number(indicatorIdParam));
+    if (foundIndex !== -1) {
+      baseIndex = foundIndex;
     }
-  }, [indicators.length]);
+  }
+
+  let currentIndex = baseIndex;
+  if (nextParam === 'true' && indicators.length > 0) {
+    currentIndex = (baseIndex + 1) % indicators.length;
+  }
+
+  const currentIndicator = indicators[currentIndex] || indicators[0];
 
   const handleLike = (id: number) => {
     setIndicators(indicators.map(indicator => {
       if (indicator.indicatorId === id) {
         const hasLiked = indicator.likes.includes(currentUserId);
-        
         const newLikes = hasLiked
           ? indicator.likes.filter(userId => userId !== currentUserId)
           : [...indicator.likes, currentUserId];
@@ -44,73 +52,23 @@ const BiochemicalIndicatorFeedPage:
   };
 
   const handleNext = () => {
-    if (!feedContainerRef.current) return;
-    const container = feedContainerRef.current;
-    const cardHeight = container.clientHeight;
-    
-    container.style.scrollSnapType = 'none';
-    
-    const currentIndex = Math.round(container.scrollTop / cardHeight);
-    
-    container.scrollTo({
-      top: (currentIndex + 1) * cardHeight,
-      behavior: 'smooth'
-    });
-
-    setTimeout(() => {
-      if (container) container.style.scrollSnapType = 'y mandatory';
-    }, 500);
+    if (!currentIndicator) return;
+    navigate(`/biochemical-indicator/feed?indicatorId=${currentIndicator.indicatorId}&next=true`);
   };
 
-  const handleScroll = () => {
-    if (!feedContainerRef.current || indicators.length === 0) return;
-    
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current);
-    }
-
-    scrollTimeoutRef.current = window.setTimeout(() => {
-      const container = feedContainerRef.current;
-      if (!container) return;
-      
-      const cardHeight = container.clientHeight;
-      const currentIndex = Math.round(container.scrollTop / cardHeight);
-
-      if (currentIndex >= indicators.length * 2) {
-        container.style.scrollSnapType = 'none';
-        container.scrollTop = (currentIndex - indicators.length) * cardHeight;
-
-        requestAnimationFrame(() => {
-          if (container) container.style.scrollSnapType = 'y mandatory';
-        });
-      } 
-      
-      else if (currentIndex < indicators.length) {
-        container.style.scrollSnapType = 'none';
-        container.scrollTop = (currentIndex + indicators.length) * cardHeight;
-        requestAnimationFrame(() => {
-          if (container) container.style.scrollSnapType = 'y mandatory';
-        });
-      }
-    }, 100);
-  };
+  if (!currentIndicator) {
+    return <div className="p-3 text-center">Показатели не найдены</div>;
+  }
 
   return (
-    <div 
-      className="feed-container" 
-      ref={feedContainerRef}
-      onScroll={handleScroll}
-    >
-      {loopedIndicators.map((indicator, index) => (
-        <BiochemicalIndicatorFeedCard 
-          key={`${indicator.indicatorId}-${index}`} 
-          indicator={indicator}
-          isExpanded={expandedId === indicator.indicatorId}
-          onLike={handleLike}
-          onToggleExpand={toggleExpand}
-          onNext={handleNext}
-        />
-      ))}
+    <div className="feed-container" style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+      <BiochemicalIndicatorFeedCard 
+        indicator={currentIndicator}
+        isExpanded={expandedId === currentIndicator.indicatorId}
+        onLike={handleLike}
+        onToggleExpand={toggleExpand}
+        onNext={handleNext}
+      />
     </div>
   );
 };
