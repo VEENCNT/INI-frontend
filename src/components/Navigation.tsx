@@ -1,13 +1,33 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { clearCredentials } from '../features/auth/authSlice';
+import { fetchIndicators, resetFilter } from '../features/indicators/indicatorsSlice';
+import { logoutRequest } from '../api/authApi';
 
 const Navigation: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  const handleLogout = async () => {
+    // Деавторизация: только axios, состояние в Redux передается вручную
+    try {
+      await logoutRequest();
+    } catch {
+      // Сессия на бэкенде могла уже истечь — все равно выходим локально
+    }
+    dispatch(clearCredentials());
+    dispatch(resetFilter());
+    dispatch(fetchIndicators({}));
+    navigate('/biochemical-indicator/feed');
+  };
 
   return (
     <div className="bottom-navbar">
-      <Link 
-        to="/biochemical-indicator/feed" 
+      <Link
+        to="/biochemical-indicator/feed"
         className={`nav-item ${location.pathname === '/biochemical-indicator/feed' || location.pathname === '/' ? 'active' : ''}`}
       >
         <div className="nav-icon-wrapper">
@@ -16,12 +36,24 @@ const Navigation: React.FC = () => {
         <span className="nav-label">Лента</span>
       </Link>
 
-      <div className="nav-item disabled">
-        <div className="nav-icon-wrapper">
-          <img src="/images/add.svg" alt="Добавить" className="nav-icon-img" />
+      {isAuthenticated ? (
+        <Link
+          to="/biochemical-indicator/draft"
+          className={`nav-item ${location.pathname === '/biochemical-indicator/draft' ? 'active' : ''}`}
+        >
+          <div className="nav-icon-wrapper">
+            <img src="/images/add.svg" alt="Добавить" className="nav-icon-img" />
+          </div>
+          <span className="nav-label">Добавить</span>
+        </Link>
+      ) : (
+        <div className="nav-item disabled">
+          <div className="nav-icon-wrapper">
+            <img src="/images/add.svg" alt="Добавить" className="nav-icon-img" />
+          </div>
+          <span className="nav-label">Добавить</span>
         </div>
-        <span className="nav-label">Добавить</span>
-      </div>
+      )}
 
       <Link to="/biochemical-indicator/grid" className={`nav-item ${location.pathname === '/biochemical-indicator/grid' ? 'active' : ''}`}>
         <div className="nav-icon-wrapper">
@@ -30,14 +62,21 @@ const Navigation: React.FC = () => {
         <span className="nav-label">Плитка</span>
       </Link>
 
-      <div className="nav-item disabled">
-        <div className="nav-icon-wrapper">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="nav-icon-img" viewBox="0 0 16 16">
-            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
-          </svg>
+      {isAuthenticated ? (
+        <div className="nav-item" onClick={handleLogout} style={{ cursor: 'pointer' }}>
+          <div className="nav-icon-wrapper">
+            <img src="/images/logout.svg" alt="Выход" className="nav-icon-img" />
+          </div>
+          <span className="nav-label">Выход</span>
         </div>
-        <span className="nav-label">Вход</span>
-      </div>
+      ) : (
+        <Link to="/user/login" className={`nav-item ${location.pathname === '/user/login' ? 'active' : ''}`}>
+          <div className="nav-icon-wrapper">
+            <img src="/images/login.svg" alt="Вход" className="nav-icon-img" />
+          </div>
+          <span className="nav-label">Вход</span>
+        </Link>
+      )}
     </div>
   );
 };

@@ -1,7 +1,5 @@
 import type { BiochemicalIndicator } from './types';
 
-export const currentUserId: number = 1;
-
 export const mockIndicators: BiochemicalIndicator[] = [
   {
     indicatorId: 1,
@@ -9,7 +7,9 @@ export const mockIndicators: BiochemicalIndicator[] = [
     description: 'Серьезный дефицит основного белка крови, может указывать на проблемы с печенью или почками.',
     lowerReferenceLimit: 35,
     upperReferenceLimit: 50,
-    likes: [2, 5, 8],
+    likesCount: 3,
+    isLiked: false,
+    isOwner: false,
   },
   {
     indicatorId: 2,
@@ -18,8 +18,10 @@ export const mockIndicators: BiochemicalIndicator[] = [
     lowerReferenceLimit: 3.0,
     upperReferenceLimit: 5.2,
     imageUrl: '/images/cholesterol.png',
-    videoUrl: '/videos/cholesterol.mp4', 
-    likes: [1, 3, 4, 7, 9],
+    videoUrl: '/videos/cholesterol.mp4',
+    likesCount: 5,
+    isLiked: false,
+    isOwner: false,
   },
   {
     indicatorId: 3,
@@ -29,6 +31,8 @@ export const mockIndicators: BiochemicalIndicator[] = [
     upperReferenceLimit: 4800,
     imageUrl: '/images/lymphocytes.png',
     videoUrl: '/videos/lymphocytes.mp4',
-    likes: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], 
+    likesCount: 12,
+    isLiked: false,
+    isOwner: false,
   },
 ];

@@ -168,7 +168,8 @@ body {
   background-color: #ffffff;
 }
 
-.search-title {
+.search-title,
+.slider-value {
   font-size: 14px;
   font-weight: 700;
   color: #111827;
@@ -483,3 +484,38 @@ body {
 }
 
 .nav-icon { display: flex; justify-content: center; }
+
+/* Добавление */
+
+.section-title {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Анимация загрузки, блокирующая интерфейс во время AJAX-запросов */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(1px);
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  color: #4E2B8C;
+}
+
+
+/* Кнопки страницы «Добавление показателя» */
+.draft-btn {
+  height: 36px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 16px;
+}

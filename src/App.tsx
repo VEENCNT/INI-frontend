@@ -10,8 +10,6 @@ import BiochemicalIndicatorGridPage from './pages/BiochemicalIndicatorGridPage';
 import BiochemicalIndicatorDraftPage from './pages/BiochemicalIndicatorDraftPage';
 import UserLoginPage from './pages/UserLoginPage';
 
-import { mockIndicators } from './data';
-
 const App: React.FC = () => {
   return (
     <Router>
@@ -20,9 +18,9 @@ const App: React.FC = () => {
 
         <main className="app-content">
           <Routes>
-            <Route path="/" element={<BiochemicalIndicatorFeedPage initialIndicators={mockIndicators} />} />
-            <Route path="/biochemical-indicator/feed" element={<BiochemicalIndicatorFeedPage initialIndicators={mockIndicators} />} />
-            <Route path="/biochemical-indicator/grid" element={<BiochemicalIndicatorGridPage initialIndicators={mockIndicators} />} />
+            <Route path="/" element={<BiochemicalIndicatorFeedPage />} />
+            <Route path="/biochemical-indicator/feed" element={<BiochemicalIndicatorFeedPage />} />
+            <Route path="/biochemical-indicator/grid" element={<BiochemicalIndicatorGridPage />} />
             <Route path="/biochemical-indicator/draft" element={<BiochemicalIndicatorDraftPage />} />
             <Route path="/user/login" element={<UserLoginPage />} />
           </Routes>

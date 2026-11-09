@@ -1,48 +1,37 @@
-import React, { useState } from 'react';
-import type { BiochemicalIndicator } from '../types';
-import { currentUserId } from '../data';
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import {
+  fetchIndicators,
+  removeIndicator,
+  setFilterValue,
+  toggleIndicatorLike,
+} from '../features/indicators/indicatorsSlice';
 import BiochemicalIndicatorGridCard from '../components/BiochemicalIndicatorGridCard';
+import LoadingOverlay from '../components/LoadingOverlay';
 import { Card, Button, Form } from 'react-bootstrap';
 
-interface BiochemicalIndicatorGridPageProps {
-  initialIndicators: BiochemicalIndicator[];
-}
+const BiochemicalIndicatorGridPage: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const indicators = useAppSelector((state) => state.indicators.items);
+  const loading = useAppSelector((state) => state.indicators.loading);
+  const filterValue = useAppSelector((state) => state.indicators.filterValue);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-const BiochemicalIndicatorGridPage: 
-  React.FC<BiochemicalIndicatorGridPageProps> = ({ initialIndicators }) => {
-  const [indicators, setIndicators] = useState<BiochemicalIndicator[]>(initialIndicators);
+  const [sliderValue, setSliderValue] = useState<number>(filterValue ?? 5000);
 
-  const [sliderValue, setSliderValue] = useState<number>(5000);
-  const [activeFilter, setActiveFilter] = useState<number | null>(null);
+  useEffect(() => {
+    dispatch(fetchIndicators({ indicatorConcentration: filterValue ?? undefined }));
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleLike = (id: number) => {
-    setIndicators(indicators.map(indicator => {
-      if (indicator.indicatorId === id) {
-        const hasLiked = indicator.likes.includes(currentUserId);
-        
-        // Если лайк уже есть - убираем ID пользователя. Если нет - добавляем.
-        const newLikes = hasLiked
-          ? indicator.likes.filter(userId => userId !== currentUserId)
-          : [...indicator.likes, currentUserId];
-          
-        return { ...indicator, likes: newLikes };
-      }
-      return indicator;
-    }));
+  const handleSearch = () => {
+    dispatch(setFilterValue(sliderValue));
+    // Фильтр добавляется в запрос к бэкенду (?indicatorConcentration=)
+    dispatch(fetchIndicators({ indicatorConcentration: sliderValue }));
   };
-
-  const handleDelete = (id: number) => {
-    setIndicators(indicators.filter(indicator => indicator.indicatorId !== id));
-  };
-
-  const filteredIndicators = indicators.filter((indicator) => {
-    if (activeFilter === null) return true;
-    return activeFilter >= indicator.lowerReferenceLimit &&
-           activeFilter <= indicator.upperReferenceLimit;
-  });
 
   return (
-    <div className="grid-container p-3 h-100 overflow-auto pb-5 mb-4">
+    <div className="grid-container p-3 h-100 overflow-auto pb-5 mb-4 position-relative">
+      {loading && <LoadingOverlay />}
       <h1 className="page-title mb-3">Биохимические показатели</h1>
 
       <Card className="search-card mb-3 shadow-none">
@@ -50,27 +39,36 @@ const BiochemicalIndicatorGridPage:
           <div className="search-title mb-3 text-purple">Количество вещества в крови, ед.</div>
           <div className="slider-container">
             <span className="slider-label">0</span>
-            <Form.Range 
-              min={0} max={5000} step={1} value={sliderValue} 
-              onChange={(e) => setSliderValue(Number(e.target.value))} 
+            <Form.Range
+              min={0} max={5000} step={1} value={sliderValue}
+              onChange={(e) => setSliderValue(Number(e.target.value))}
               className="custom-slider"
             />
             <span className="slider-label">5000</span>
           </div>
+          <div className="slider-value text-center text-purple fw-bold mt-3 mb-0">Выбрано: {sliderValue} ед.</div>
         </Card.Body>
       </Card>
-      
-      <Button variant="purple" className="w-100 search-btn fw-bold mb-3" onClick={() => setActiveFilter(sliderValue)}>
+
+      <Button
+        variant="purple"
+        className="w-100 search-btn fw-bold mb-3"
+        onClick={handleSearch}
+        disabled={loading}
+      >
         Поиск
       </Button>
 
       <div className="row g-2">
-        {filteredIndicators.map((indicator) => (
+        {indicators.map((indicator) => (
           <div className="col-6" key={indicator.indicatorId}>
-            <BiochemicalIndicatorGridCard 
-              indicator={indicator} 
-              onLike={handleLike} 
-              onDelete={handleDelete} 
+            <BiochemicalIndicatorGridCard
+              indicator={indicator}
+              isLiked={indicator.isLiked}
+              canInteract={isAuthenticated}
+              canDelete={isAuthenticated && indicator.isOwner}
+              onLike={(id) => dispatch(toggleIndicatorLike(id))}
+              onDelete={(id) => dispatch(removeIndicator(id))}
             />
           </div>
         ))}

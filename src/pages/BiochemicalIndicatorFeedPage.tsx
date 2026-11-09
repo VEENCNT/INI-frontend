@@ -1,53 +1,44 @@
-import React, { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import type { BiochemicalIndicator } from '../types';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { fetchFeedFirst, fetchFeedNext, toggleIndicatorLike } from '../features/indicators/indicatorsSlice';
 import BiochemicalIndicatorFeedCard from '../components/BiochemicalIndicatorFeedCard';
-import { currentUserId } from '../data';
+import LoadingOverlay from '../components/LoadingOverlay';
 
-interface BiochemicalIndicatorFeedPageProps {
-  initialIndicators: BiochemicalIndicator[];
-}
+const BiochemicalIndicatorFeedPage: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const feedItems = useAppSelector((state) => state.indicators.feedItems);
+  const feedIndex = useAppSelector((state) => state.indicators.feedIndex);
+  const feedLoading = useAppSelector((state) => state.indicators.feedLoading);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
-const BiochemicalIndicatorFeedPage: 
-  React.FC<BiochemicalIndicatorFeedPageProps> = ({ initialIndicators }) => {
-  const [indicators, setIndicators] = useState<BiochemicalIndicator[]>(initialIndicators);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  
+
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
+  // Лента загружается своим эндпоинтом и не зависит от фильтра страницы «Плитка»
+  useEffect(() => {
+    if (feedItems.length === 0) {
+      dispatch(fetchFeedFirst());
+    }
+  }, [dispatch, feedItems.length]);
+
+  // Позиционирование по ?indicatorId= (переход «Подробнее» из плитки)
   const indicatorIdParam = searchParams.get('indicatorId');
-  const nextParam = searchParams.get('next');
-
-  let baseIndex = 0;
+  let currentIndex = feedIndex;
   if (indicatorIdParam) {
-    const foundIndex = indicators.findIndex(indicator => 
-      indicator.indicatorId === Number(indicatorIdParam)
+    const foundIndex = feedItems.findIndex(
+      (indicator) => indicator.indicatorId === Number(indicatorIdParam),
     );
     if (foundIndex !== -1) {
-      baseIndex = foundIndex;
+      currentIndex = foundIndex;
     }
   }
 
-  let currentIndex = baseIndex;
-  if (nextParam === 'true' && indicators.length > 0) {
-    currentIndex = (baseIndex + 1) % indicators.length;
-  }
-
-  const currentIndicator = indicators[currentIndex] || indicators[0];
+  const currentIndicator = feedItems[currentIndex] || feedItems[0];
 
   const handleLike = (id: number) => {
-    setIndicators(indicators.map(indicator => {
-      if (indicator.indicatorId === id) {
-        const hasLiked = indicator.likes.includes(currentUserId);
-        const newLikes = hasLiked
-          ? indicator.likes.filter(userId => userId !== currentUserId)
-          : [...indicator.likes, currentUserId];
-          
-        return { ...indicator, likes: newLikes };
-      }
-      return indicator;
-    }));
+    dispatch(toggleIndicatorLike(id));
   };
 
   const toggleExpand = (id: number) => {
@@ -56,18 +47,26 @@ const BiochemicalIndicatorFeedPage:
 
   const handleNext = () => {
     if (!currentIndicator) return;
-    navigate(`/biochemical-indicator/feed?indicatorId=${currentIndicator.indicatorId}&next=true`);
+    dispatch(fetchFeedNext(currentIndicator.indicatorId));
   };
 
   if (!currentIndicator) {
-    return <div className="p-3 text-center">Показатели не найдены</div>;
+    return (
+      <div className="p-3 text-center position-relative h-100">
+        {feedLoading && <LoadingOverlay />}
+        Показатели не найдены
+      </div>
+    );
   }
 
   return (
     <div className="feed-container" style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
-      <BiochemicalIndicatorFeedCard 
+      {feedLoading && <LoadingOverlay />}
+      <BiochemicalIndicatorFeedCard
         indicator={currentIndicator}
         isExpanded={expandedId === currentIndicator.indicatorId}
+        isLiked={currentIndicator.isLiked}
+        canInteract={isAuthenticated}
         onLike={handleLike}
         onToggleExpand={toggleExpand}
         onNext={handleNext}

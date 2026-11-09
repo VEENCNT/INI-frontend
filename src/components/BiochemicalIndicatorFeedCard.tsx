@@ -1,29 +1,41 @@
 import React from 'react';
 import type { BiochemicalIndicator } from '../types';
-import { currentUserId } from '../data';
+import { resolveMediaUrl } from '../utils/media';
 
 interface BiochemicalIndicatorFeedCardProps {
   indicator: BiochemicalIndicator;
   isExpanded: boolean;
+  isLiked: boolean;
+  /** Лайк доступен только авторизованному пользователю */
+  canInteract: boolean;
   onLike: (id: number) => void;
   onToggleExpand: (id: number) => void;
   onNext: () => void;
 }
 
-const BiochemicalIndicatorFeedCard: React.FC<BiochemicalIndicatorFeedCardProps> = ({ indicator, isExpanded, onLike, onToggleExpand, onNext }) => {
-  const isLiked = indicator.likes.includes(currentUserId);
-  const likesCount = indicator.likes.length;
+const BiochemicalIndicatorFeedCard: React.FC<BiochemicalIndicatorFeedCardProps> = ({
+  indicator,
+  isExpanded,
+  isLiked,
+  canInteract,
+  onLike,
+  onToggleExpand,
+  onNext,
+}) => {
+  const likesCount = indicator.likesCount;
+  const videoUrl = resolveMediaUrl(indicator.videoUrl);
+  const imageUrl = resolveMediaUrl(indicator.imageUrl);
 
   return (
     <div className="feed-slide">
-      {indicator.videoUrl ? (
-        <video className="feed-bg" src={indicator.videoUrl} autoPlay loop muted playsInline />
-      ) : indicator.imageUrl ? (
-        <img className="feed-bg" src={indicator.imageUrl} alt={indicator.title} />
+      {videoUrl ? (
+        <video className="feed-bg" src={videoUrl} autoPlay loop muted playsInline />
+      ) : imageUrl ? (
+        <img className="feed-bg" src={imageUrl} alt={indicator.title} />
       ) : (
         <video className="feed-bg" src="/videos/placeholder.mp4" autoPlay loop muted playsInline />
       )}
-      
+
       <div className="overlay-gradient"></div>
 
       <div className="feed-info">
@@ -45,16 +57,18 @@ const BiochemicalIndicatorFeedCard: React.FC<BiochemicalIndicatorFeedCardProps> 
           <div className="action-btn"><span className="action-btn-text text-black">Мин.</span></div>
           <span className="action-text">{indicator.lowerReferenceLimit} ед.</span>
         </div>
-        <div className="action-item">
-          <div className="action-btn" onClick={() => onLike(indicator.indicatorId)} style={{ cursor: 'pointer' }}>
-            <img 
-              src={isLiked ? "/images/heart_colored.svg" : "/images/heart.svg"} 
-              alt="Сердце" width="24" 
-            />
+        {canInteract && (
+          <div className="action-item">
+            <div className="action-btn" onClick={() => onLike(indicator.indicatorId)} style={{ cursor: 'pointer' }}>
+              <img
+                src={isLiked ? "/images/heart_colored.svg" : "/images/heart.svg"}
+                alt="Сердце" width="24"
+              />
+            </div>
+            <span className="action-text">{likesCount}</span>
           </div>
-          <span className="action-text">{likesCount}</span>
-        </div>
-        
+        )}
+
         <div className="action-item">
           <div className="action-btn" onClick={onNext} style={{ cursor: 'pointer' }}>
             <img src="/images/next.svg" alt="Следующий" width="24" />
