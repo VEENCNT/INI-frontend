@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:api": "swagger-typescript-api generate -p ./swagger.json -o ./src/api/generated --axios --api-class-name BiochemicalIndicatorApi -n biochemicalIndicatorApi"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.14.0",
@@ -30,6 +31,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "swagger-typescript-api": "^13.14.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4"

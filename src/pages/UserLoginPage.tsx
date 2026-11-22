@@ -17,7 +17,7 @@ const UserLoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Авторизация: только axios, состояние в Redux передается вручную (без thunk)
+
     dispatch(setLoading(true));
     dispatch(setError(null));
     try {

@@ -1,9 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { AuthUser } from '../../types';
 
-const TOKEN_KEY = 'token';
-const USER_KEY = 'user';
-
 interface AuthState {
   user: AuthUser | null;
   token: string | null;
@@ -12,29 +9,19 @@ interface AuthState {
   error: string | null;
 }
 
-function loadInitialState(): AuthState {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const userJson = localStorage.getItem(USER_KEY);
-  let user: AuthUser | null;
-  try {
-    user = userJson ? (JSON.parse(userJson) as AuthUser) : null;
-  } catch {
-    user = null;
-  }
-  return {
-    user,
-    token,
-    // Сессия восстанавливается после обновления страницы, если известен пользователь
-    // (токен может отсутствовать при cookie-сессии — запросы пойдут с cookie через прокси)
-    isAuthenticated: Boolean(user),
-    loading: false,
-    error: null,
-  };
-}
+// После перезагрузки страницы (F5) стейт сбрасывается в состояние гостя;
+// сессия пользователя при этом остаётся на сервере (cookie connect.sid).
+const initialState: AuthState = {
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  loading: false,
+  error: null,
+};
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: loadInitialState(),
+  initialState,
   reducers: {
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload;
@@ -51,10 +38,6 @@ const authSlice = createSlice({
       state.token = action.payload.token ?? null;
       state.isAuthenticated = true;
       state.error = null;
-      if (action.payload.token) {
-        localStorage.setItem(TOKEN_KEY, action.payload.token);
-      }
-      localStorage.setItem(USER_KEY, JSON.stringify(action.payload.user));
     },
     // Возврат интерфейса в состояние гостя
     clearCredentials(state) {
@@ -62,8 +45,6 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
     },
   },
 });

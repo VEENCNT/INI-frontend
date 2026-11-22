@@ -7,22 +7,12 @@ import type {
   DraftPublishForm,
 } from '../../types';
 import { mockIndicators } from '../../data';
-import {
-  getBiochemicalIndicators,
-  getBiochemicalIndicatorFeedFirst,
-  getNextBiochemicalIndicator,
-  getBiochemicalIndicatorDraft,
-  createBiochemicalIndicatorDraft,
-  publishBiochemicalIndicatorDraft,
-  deleteBiochemicalIndicator,
-  setBiochemicalIndicatorLike,
-} from '../../api/generated/biochemicalIndicatorApi';
+import { biochemicalIndicatorApi } from '../../api/generated/client';
+import { toDraft, toIndicator } from '../../api/dto';
 import type { RootState } from '../../app/store';
 
 interface DraftState {
-  /** Черновик загружен с сервера */
   loaded: boolean;
-  /** Черновик создан (есть indicatorId) — определяет вид страницы «Добавить» */
   isCreated: boolean;
   indicatorId: number | null;
   title: string;
@@ -46,17 +36,13 @@ const emptyDraft: DraftState = {
 };
 
 interface IndicatorsState {
-  /** Элементы страницы «Плитка» (могут быть отфильтрованы) */
   items: BiochemicalIndicator[];
   loading: boolean;
   error: string | null;
-  /** Фильтр пользователя: значение содержания вещества в крови */
   filterValue: number | null;
-  /** Элементы ленты (всегда без фильтра, накапливаются при листании) */
   feedItems: BiochemicalIndicator[];
   feedIndex: number;
   feedLoading: boolean;
-  /** Черновик текущего пользователя */
   draft: DraftState;
 }
 
@@ -86,7 +72,6 @@ function applyMockFilter(
   });
 }
 
-/** Плитка: получение показателей с фильтром. При недоступности бэкенда (только как гость) — mock */
 export const fetchIndicators = createAsyncThunk<
   BiochemicalIndicator[],
   BiochemicalIndicatorFilter,
@@ -94,7 +79,13 @@ export const fetchIndicators = createAsyncThunk<
 >('indicators/fetchIndicators', async (filter, { getState, rejectWithValue }) => {
   const { isAuthenticated } = getState().auth;
   try {
-    return await getBiochemicalIndicators(filter);
+    const response = await biochemicalIndicatorApi.api.getBiochemicalIndicators({
+      indicatorConcentration:
+        filter.indicatorConcentration !== undefined
+          ? String(filter.indicatorConcentration)
+          : undefined,
+    });
+    return response.data.map(toIndicator);
   } catch {
     if (!isAuthenticated) {
       return applyMockFilter(mockIndicators, filter);
@@ -103,7 +94,6 @@ export const fetchIndicators = createAsyncThunk<
   }
 });
 
-/** Лента: первый опубликованный элемент (без фильтрации) */
 export const fetchFeedFirst = createAsyncThunk<
   BiochemicalIndicator[],
   void,
@@ -111,7 +101,8 @@ export const fetchFeedFirst = createAsyncThunk<
 >('indicators/fetchFeedFirst', async (_, { getState, rejectWithValue }) => {
   const { isAuthenticated } = getState().auth;
   try {
-    return [await getBiochemicalIndicatorFeedFirst()];
+    const response = await biochemicalIndicatorApi.api.getBiochemicalIndicatorFeed();
+    return [toIndicator(response.data)];
   } catch {
     if (!isAuthenticated) {
       return mockIndicators;
@@ -129,7 +120,11 @@ export const fetchFeedNext = createAsyncThunk<
 >('indicators/fetchFeedNext', async (indicatorId, { getState, rejectWithValue }) => {
   const { isAuthenticated } = getState().auth;
   try {
-    return await getNextBiochemicalIndicator(indicatorId);
+    const response = await biochemicalIndicatorApi.api.getBiochemicalIndicatorFeed({
+      indicatorId,
+      next: 'true',
+    });
+    return toIndicator(response.data);
   } catch {
     if (!isAuthenticated) {
       return null;
@@ -145,7 +140,8 @@ export const fetchDraft = createAsyncThunk<
   { rejectValue: string }
 >('indicators/fetchDraft', async (_, { rejectWithValue }) => {
   try {
-    return await getBiochemicalIndicatorDraft();
+    const response = await biochemicalIndicatorApi.api.getBiochemicalIndicatorDraft();
+    return toDraft(response.data);
   } catch {
     return rejectWithValue('Не удалось загрузить черновик');
   }
@@ -158,7 +154,13 @@ export const createDraft = createAsyncThunk<
   { rejectValue: string }
 >('indicators/createDraft', async (form, { rejectWithValue }) => {
   try {
-    return await createBiochemicalIndicatorDraft(form);
+    await biochemicalIndicatorApi.api.createBiochemicalIndicatorDraft({
+      title: form.title,
+      image: form.imageFile,
+      video: form.videoFile,
+    });
+    const response = await biochemicalIndicatorApi.api.getBiochemicalIndicatorDraft();
+    return toDraft(response.data);
   } catch {
     return rejectWithValue('Не удалось создать черновик');
   }
@@ -171,7 +173,9 @@ export const publishDraft = createAsyncThunk<
   { rejectValue: string }
 >('indicators/publishDraft', async (form, { rejectWithValue }) => {
   try {
-    return await publishBiochemicalIndicatorDraft(form);
+    await biochemicalIndicatorApi.api.publishBiochemicalIndicator(form);
+    const response = await biochemicalIndicatorApi.api.getBiochemicalIndicators();
+    return toIndicator(response.data[0]);
   } catch {
     return rejectWithValue('Не удалось опубликовать показатель');
   }
@@ -187,7 +191,7 @@ export const removeIndicator = createAsyncThunk<
     return rejectWithValue('Только авторизованный пользователь может удалять показатели');
   }
   try {
-    await deleteBiochemicalIndicator(indicatorId);
+    await biochemicalIndicatorApi.api.deleteBiochemicalIndicator(indicatorId);
   } catch {
     return rejectWithValue('Не удалось удалить показатель');
   }
@@ -209,7 +213,9 @@ export const toggleIndicatorLike = createAsyncThunk<
   }
   const like = !indicator?.isLiked;
   try {
-    await setBiochemicalIndicatorLike(indicatorId, like);
+    await biochemicalIndicatorApi.api.likeBiochemicalIndicator(indicatorId, {
+      like: like ? 1 : 0,
+    });
   } catch {
     return rejectWithValue('Не удалось поставить лайк');
   }
@@ -219,7 +225,6 @@ export const toggleIndicatorLike = createAsyncThunk<
 function draftFromResponse(draft: BiochemicalIndicatorDraft): DraftState {
   return {
     loaded: true,
-    // дефолтная структура от бэкенда имеет indicatorId = null — черновик ещё не создан
     isCreated: Boolean(draft.indicatorId),
     indicatorId: draft.indicatorId,
     title: draft.title ?? '',
@@ -238,7 +243,6 @@ const indicatorsSlice = createSlice({
     setFilterValue(state, action: PayloadAction<number | null>) {
       state.filterValue = action.payload;
     },
-    // Сброс фильтра пользователя (при выходе из системы)
     resetFilter(state) {
       state.filterValue = null;
     },
@@ -278,7 +282,6 @@ const indicatorsSlice = createSlice({
       .addCase(fetchFeedNext.fulfilled, (state, action) => {
         state.feedLoading = false;
         if (action.payload === null) {
-          // mock-режим гостя: закольцованное листание
           if (state.feedItems.length > 0) {
             state.feedIndex = (state.feedIndex + 1) % state.feedItems.length;
           }
@@ -288,7 +291,6 @@ const indicatorsSlice = createSlice({
           (item) => item.indicatorId === action.payload!.indicatorId,
         );
         if (existingIndex !== -1) {
-          // бэкенд вернул уже известный элемент (цикл ленты) — перемещаемся к нему
           state.feedIndex = existingIndex;
         } else {
           state.feedItems = [...state.feedItems, action.payload!];
@@ -331,7 +333,6 @@ const indicatorsSlice = createSlice({
       .addCase(publishDraft.fulfilled, (state, action) => {
         state.loading = false;
         state.items = [action.payload, ...state.items];
-        // черновик опубликован — сбрасываем к состоянию «не создан»
         state.draft = { ...emptyDraft, loaded: true };
       })
       .addCase(publishDraft.rejected, (state, action) => {

@@ -1,0 +1,481 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/biochemical-indicators": {
+      "get": {
+        "operationId": "getBiochemicalIndicators",
+        "parameters": [
+          {
+            "name": "indicatorConcentration",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "5",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BiochemicalIndicatorResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Получить список показателей",
+        "tags": [
+          "Biochemical Indicators"
+        ]
+      }
+    },
+    "/api/biochemical-indicators/feed": {
+      "get": {
+        "operationId": "getBiochemicalIndicatorFeed",
+        "parameters": [
+          {
+            "name": "indicatorId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "10",
+              "type": "number"
+            }
+          },
+          {
+            "name": "next",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "true",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BiochemicalIndicatorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Получить ленту показателей",
+        "tags": [
+          "Biochemical Indicators"
+        ]
+      }
+    },
+    "/api/biochemical-indicators/draft": {
+      "get": {
+        "operationId": "getBiochemicalIndicatorDraft",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BiochemicalIndicatorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Получить черновик показателя",
+        "tags": [
+          "Biochemical Indicators"
+        ]
+      },
+      "post": {
+        "operationId": "createBiochemicalIndicatorDraft",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Лимфоциты"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "video": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Создать или обновить черновик показателя",
+        "tags": [
+          "Biochemical Indicators"
+        ]
+      }
+    },
+    "/api/biochemical-indicators/draft/publish": {
+      "put": {
+        "operationId": "publishBiochemicalIndicator",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishBiochemicalIndicatorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Опубликовать показатель",
+        "tags": [
+          "Biochemical Indicators"
+        ]
+      }
+    },
+    "/api/biochemical-indicators/{id}": {
+      "delete": {
+        "operationId": "deleteBiochemicalIndicator",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Удалить показатель",
+        "tags": [
+          "Biochemical Indicators"
+        ]
+      }
+    },
+    "/api/biochemical-indicators/{id}/like": {
+      "post": {
+        "operationId": "likeBiochemicalIndicator",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LikeBiochemicalIndicatorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Поставить/убрать лайк",
+        "tags": [
+          "Biochemical Indicators"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "operationId": "AuthController_registerUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Зарегистрировать нового пользователя",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Войти в систему",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Выйти из системы",
+        "tags": [
+          "Auth"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Biochemical Indicators API",
+    "description": "API для лабораторной работы 4",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "connect.sid"
+      }
+    },
+    "schemas": {
+      "BiochemicalIndicatorResponseDto": {
+        "type": "object",
+        "properties": {
+          "indicatorId": {
+            "type": "object",
+            "example": 1,
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "example": "Лимфоциты"
+          },
+          "description": {
+            "type": "string",
+            "example": "Описание показателя"
+          },
+          "lowerReferenceLimit": {
+            "type": "number",
+            "example": 3.5
+          },
+          "upperReferenceLimit": {
+            "type": "number",
+            "example": 6.1
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "http://minio/.../img.png"
+          },
+          "videoUrl": {
+            "type": "string",
+            "example": "http://minio/.../vid.mp4"
+          },
+          "creatorId": {
+            "type": "object",
+            "example": 10
+          },
+          "createdAt": {
+            "type": "object",
+            "example": "2024-01-01T00:00:00.000Z"
+          },
+          "formedAt": {
+            "type": "object",
+            "example": "2024-01-02T00:00:00.000Z",
+            "nullable": true
+          },
+          "isOwner": {
+            "type": "number",
+            "example": 1,
+            "description": "1, если текущий пользователь — автор"
+          },
+          "isLiked": {
+            "type": "number",
+            "example": 1,
+            "description": "1, если текущий пользователь лайкнул"
+          },
+          "likesCount": {
+            "type": "number",
+            "example": 5
+          }
+        },
+        "required": [
+          "indicatorId",
+          "title",
+          "description",
+          "lowerReferenceLimit",
+          "upperReferenceLimit",
+          "imageUrl",
+          "videoUrl",
+          "creatorId",
+          "createdAt",
+          "formedAt",
+          "isOwner",
+          "isLiked",
+          "likesCount"
+        ]
+      },
+      "PublishBiochemicalIndicatorDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Описание"
+          },
+          "lowerReferenceLimit": {
+            "type": "number",
+            "example": "3.5"
+          },
+          "upperReferenceLimit": {
+            "type": "number",
+            "example": "6.1"
+          }
+        },
+        "required": [
+          "description",
+          "lowerReferenceLimit",
+          "upperReferenceLimit"
+        ]
+      },
+      "LikeBiochemicalIndicatorDto": {
+        "type": "object",
+        "properties": {
+          "like": {
+            "type": "number",
+            "example": 1,
+            "description": "1 — поставить лайк, 0 — убрать"
+          }
+        },
+        "required": [
+          "like"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "example": "alice",
+            "description": "Логин пользователя"
+          },
+          "passwordHash": {
+            "type": "string",
+            "example": "1234",
+            "description": "Пароль"
+          }
+        },
+        "required": [
+          "login",
+          "passwordHash"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "example": "alice",
+            "description": "Логин пользователя"
+          },
+          "passwordHash": {
+            "type": "string",
+            "example": "1234",
+            "description": "Пароль"
+          }
+        },
+        "required": [
+          "login",
+          "passwordHash"
+        ]
+      }
+    }
+  }
+}
