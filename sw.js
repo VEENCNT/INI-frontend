@@ -1,8 +1,8 @@
 /* Сгенерировано scripts/build-sw.mjs — не редактировать вручную. */
 const PRECACHE = [
   "/INI-frontend/",
-  "/INI-frontend/assets/index-BMW_rrcQ.js",
   "/INI-frontend/assets/index-C9FrOh3j.css",
+  "/INI-frontend/assets/index-o8RuKOZo.js",
   "/INI-frontend/favicon.svg",
   "/INI-frontend/icons/apple-touch-icon.png",
   "/INI-frontend/icons/icon-192.png",
@@ -11,7 +11,7 @@ const PRECACHE = [
   "/INI-frontend/index.html",
   "/INI-frontend/manifest.json"
 ];
-const CACHE = 'ini-frontend-7d1080d0d7a2';
+const CACHE = 'ini-frontend-35fedab7747d';
 const INDEX = "/INI-frontend/index.html";
 
 self.addEventListener('install', (event) => {
