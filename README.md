@@ -1,4 +1,4 @@
-﻿## Описание страниц приложения
+## Описание страниц приложения
 
 ### 1. Страница «Лента» (`/biochemical-indicator/feed`)
 Вертикальная прокрутка (TikTok-style) с эффектом бесконечной (закольцованной) ленты.
@@ -67,10 +67,13 @@ npm run preview
 
 В собранной версии используется `HashRouter` (маршруты вида `#/biochemical-indicator/grid`) — это обеспечивает работу прямых ссылок и офлайн-режима на GitHub Pages.
 
-### Публикация
-Workflow `.github/workflows/deploy.yml` собирает приложение с `VITE_MOCK_MODE=true` и базовым путём `/‹имя-репозитория›/`, затем публикует `dist` на GitHub Pages.
+### Публикация через gh-pages
+Публикация выполняется библиотекой `gh-pages`: `npm run deploy` собирает приложение в mock-режиме с базовым путём из поля `homepage` в `package.json` и публикует каталог `dist` в ветку `gh-pages`.
 
-1. В репозитории откройте **Settings → Pages** и укажите **Source: GitHub Actions**.
-2. Запушьте изменения в ветку `main` или `user-spa` (либо запустите workflow вручную: **Actions → Deploy to GitHub Pages → Run workflow**).
-3. Сайт будет доступен по адресу `https://‹user›.github.io/‹repo›/`.
+1. При необходимости измените поле `homepage` в `package.json` на адрес будущего сайта.
+2. Выполните `npm run deploy` (нужен доступ к `origin`; при первом запуске git может запросить авторизацию GitHub).
+3. В репозитории: **Settings → Pages → Source: Deploy from a branch**, ветка **`gh-pages`**, каталог **`/root`**.
+4. Сайт будет доступен по адресу из `homepage`, например `https://veencnt.github.io/INI-frontend/`.
+
+Для сборки без публикации: `node scripts/deploy.mjs --build-only`.
 

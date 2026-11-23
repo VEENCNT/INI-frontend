@@ -2,10 +2,12 @@
   "name": "ini-frontend",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://veencnt.github.io/INI-frontend/",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && node scripts/build-sw.mjs",
+    "deploy": "node scripts/deploy.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "generate:api": "swagger-typescript-api generate -p ./swagger.json -o ./src/api/generated --axios --api-class-name BiochemicalIndicatorApi -n biochemicalIndicatorApi"
@@ -30,6 +32,7 @@
     "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
+    "gh-pages": "^6.3.0",
     "globals": "^17.13.0",
     "swagger-typescript-api": "^13.14.0",
     "typescript": "~6.0.3",
