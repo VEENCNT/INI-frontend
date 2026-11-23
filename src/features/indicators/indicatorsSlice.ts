@@ -205,13 +205,18 @@ export const toggleIndicatorLike = createAsyncThunk<
   { state: RootState; rejectValue: string }
 >('indicators/toggleIndicatorLike', async (indicatorId, { getState, rejectWithValue }) => {
   const { isAuthenticated } = getState().auth;
-  const indicator =
-    getState().indicators.items.find((item) => item.indicatorId === indicatorId) ??
-    getState().indicators.feedItems.find((item) => item.indicatorId === indicatorId);
   if (!isAuthenticated) {
     return rejectWithValue('Только авторизованный пользователь может ставить лайки');
   }
-  const like = !indicator?.isLiked;
+  // Показатель может быть загружен и в плитке, и в ленте — берём актуальное состояние
+  // из любого списка, где он есть.
+  const indicator =
+    getState().indicators.items.find((item) => item.indicatorId === indicatorId) ??
+    getState().indicators.feedItems.find((item) => item.indicatorId === indicatorId);
+  if (!indicator) {
+    return rejectWithValue('Показатель не найден');
+  }
+  const like = !indicator.isLiked;
   try {
     await biochemicalIndicatorApi.api.likeBiochemicalIndicator(indicatorId, {
       like: like ? 1 : 0,
@@ -348,12 +353,14 @@ const indicatorsSlice = createSlice({
       })
       .addCase(toggleIndicatorLike.fulfilled, (state, action) => {
         const { indicatorId, like } = action.payload;
-        const indicator =
-          state.items.find((item) => item.indicatorId === indicatorId) ??
-          state.feedItems.find((item) => item.indicatorId === indicatorId);
-        if (!indicator) return;
-        indicator.isLiked = like;
-        indicator.likesCount = Math.max(0, indicator.likesCount + (like ? 1 : -1));
+        // Один и тот же показатель хранится в двух списках (плитка и лента) —
+        // обновляем обе копии, иначе лента остаётся с прежним состоянием.
+        for (const list of [state.items, state.feedItems]) {
+          const indicator = list.find((item) => item.indicatorId === indicatorId);
+          if (!indicator) continue;
+          indicator.isLiked = like;
+          indicator.likesCount = Math.max(0, indicator.likesCount + (like ? 1 : -1));
+        }
       })
       .addCase(toggleIndicatorLike.rejected, (state, action) => {
         state.error = action.payload ?? 'Ошибка лайка';

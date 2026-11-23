@@ -103,21 +103,8 @@ const BiochemicalIndicatorDraftPage: React.FC = () => {
   const imageSrc = imagePreview ?? existingImageUrl;
   const videoSrc = videoPreview ?? existingVideoUrl;
 
-  const mediaBoxStyle: React.CSSProperties = {
-    height: '200px',
-    backgroundColor: '#f8f9fa',
-    overflow: 'hidden',
-  };
-
-  const mediaFitStyle: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    display: 'block',
-  };
-
   return (
-    <Container className="p-3 h-100 overflow-auto pb-5 mb-5 position-relative">
+    <Container fluid className="p-3 h-100 overflow-auto pb-5 mb-5 position-relative">
       {loading && <LoadingOverlay />}
       <h1 className="page-title mb-3">Добавление показателя</h1>
 
@@ -128,9 +115,9 @@ const BiochemicalIndicatorDraftPage: React.FC = () => {
 
         <Form.Group className="mb-3">
           <Form.Label className="fw-bold">Изображение</Form.Label>
-          <div className="border rounded text-center d-flex justify-content-center align-items-center mb-2" style={mediaBoxStyle}>
+          <div className="media-box border rounded text-center d-flex justify-content-center align-items-center mb-2">
             {imageSrc ? (
-              <img src={imageSrc} alt="Превью" style={mediaFitStyle} />
+              <img src={imageSrc} alt="Превью" />
             ) : (
               <span className="text-muted">Изображение не загружено</span>
             )}
@@ -149,9 +136,9 @@ const BiochemicalIndicatorDraftPage: React.FC = () => {
 
         <Form.Group className="mb-3">
           <Form.Label className="fw-bold">Видео</Form.Label>
-          <div className="border rounded text-center d-flex justify-content-center align-items-center mb-2" style={mediaBoxStyle}>
+          <div className="media-box border rounded text-center d-flex justify-content-center align-items-center mb-2">
             {videoSrc ? (
-              <video src={videoSrc} controls autoPlay loop muted playsInline style={mediaFitStyle} />
+              <video src={videoSrc} controls autoPlay loop muted playsInline />
             ) : (
               <span className="text-muted">Видео не загружено</span>
             )}

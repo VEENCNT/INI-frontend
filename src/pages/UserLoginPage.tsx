@@ -38,7 +38,7 @@ const UserLoginPage: React.FC = () => {
 
       {error && <Alert variant="danger" className="text-center">{error}</Alert>}
 
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} className="login-form">
         <Form.Group className="mb-3">
           <Form.Label>Логин</Form.Label>
           <Form.Control

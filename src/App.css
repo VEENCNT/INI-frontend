@@ -16,10 +16,20 @@ body {
   justify-content: center;
 }
 
+/* Точки переключения адаптивной вёрстки:
+   мобильные — < 576px, планшеты — 576–991px, десктоп — ≥ 992px.
+   Ширина оболочки приложения задаётся переменной --app-max-width. */
+:root {
+  --app-max-width: 402px;
+  --grid-gap: 0.5rem;
+  --card-min-width: 150px;
+}
+
 .mobile-container {
   width: 100%;
-  max-width: 402px;
+  max-width: var(--app-max-width);
   height: 100vh;
+  height: 100dvh;
   background: #ffffff;
   display: flex;
   flex-direction: column;
@@ -98,22 +108,23 @@ body {
 
 .feed-info {
   position: absolute;
-  bottom: 20px;
-  left: 16px;
-  right: 88px;
+  bottom: clamp(20px, 3vw, 40px);
+  left: clamp(16px, 2.5vw, 32px);
+  right: clamp(88px, 8vw, 140px);
   z-index: 10;
+  max-width: 720px;
   color: white;
 }
 
 .feed-title {
-  font-size: 22px;
+  font-size: clamp(22px, 1.2vw + 17px, 34px);
   font-weight: 700;
   margin-bottom: 8px;
   text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .feed-desc {
-  font-size: 14px;
+  font-size: clamp(14px, 0.5vw + 12px, 18px);
   font-weight: 500;
   line-height: 1.4;
   margin-bottom: 5px;
@@ -158,7 +169,7 @@ body {
 /* Плитка (Grid) */
 .page-title {
   color: #4E2B8C;
-  font-size: 20px;
+  font-size: clamp(20px, 0.8vw + 17px, 26px);
   font-weight: 700;
 }
 
@@ -179,6 +190,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
   
   border: 1px solid #E8E2F4; 
   border-radius: 12px;
@@ -247,7 +259,17 @@ body {
   font-size: 14px;
 }
 
+/* Сетка карточек: 1 колонка на мобильных, 2 на планшетах, 3 на десктопе.
+   minmax(--card-min-width, 1fr) даёт карточкам расти вместе с экраном,
+   но не сужаться ниже минимальной ширины. */
+.indicator-grid {
+  display: grid;
+  grid-template-columns: minmax(var(--card-min-width), 1fr);
+  gap: var(--grid-gap);
+}
+
 .indicator-card {
+  min-width: var(--card-min-width);
   border: 1px solid #E8E2F4 !important;
   border-radius: 12px !important;
   overflow: hidden;
@@ -255,7 +277,7 @@ body {
 
 .card-img-wrapper {
   width: 100%;
-  height: 90px;
+  height: clamp(88px, 22vw, 160px);
   overflow: hidden;
 }
 
@@ -266,7 +288,7 @@ body {
 }
 
 .card-title {
-  font-size: 13px;
+  font-size: clamp(13px, 0.55vw + 11px, 16px);
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 4px;
@@ -282,19 +304,21 @@ body {
 }
 
 .card-range {
-  font-size: 11px;
+  font-size: clamp(11px, 0.35vw + 10px, 13px);
   font-weight: 700;
   color: #533293;
 }
 
 .like-pill {
+  /* Одинаковые отступы содержимого от границ со всех сторон:
+     padding задаёт отступы и по горизонтали, и по вертикали,
+     а высота кнопки подстраивается под содержимое. */
   display: inline-flex;
   align-items: center;
-  justify-content: left;
-  min-width: 40px;
-  height: 28px; 
-  padding: 0 6px;
-  font-size: 12px;
+  justify-content: center;
+  gap: 4px;
+  padding: clamp(5.5px, 0.35vw + 4.5px, 9.5px);
+  font-size: clamp(12px, 0.25vw + 11px, 14px);
   font-weight: 700;
   border-radius: 8px;
   
@@ -335,18 +359,16 @@ body {
 .like-icon {
   width: 14px;
   height: 14px;
-  margin-right: 4px;
   flex-shrink: 0;
 }
 
 .like-count {
-  min-width: 12px;
-  text-align: left;
+  line-height: 1;
 }
 
 .btn-small {
-  height: 28px;
-  font-size: 12px;
+  height: clamp(28px, 0.8vw + 25px, 36px);
+  font-size: clamp(12px, 0.25vw + 11px, 14px);
   font-weight: 700;
   border: none;
   border-radius: 8px;
@@ -431,8 +453,8 @@ body {
 
 .actions-column {
   position: absolute;
-  bottom: 20px;
-  right: 16px;
+  bottom: clamp(20px, 3vw, 40px);
+  right: clamp(16px, 2vw, 32px);
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -493,6 +515,28 @@ body {
   line-height: 1;
 }
 
+/* Превью изображения и видео в форме */
+.media-box {
+  height: clamp(200px, 30vw, 320px);
+  background-color: #f8f9fa;
+  overflow: hidden;
+}
+
+.media-box img,
+.media-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Форма входа */
+.login-form {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
 /* Анимация загрузки, блокирующая интерфейс во время AJAX-запросов */
 .loading-overlay {
   position: absolute;
@@ -518,4 +562,68 @@ body {
   border-radius: 8px;
   font-weight: 700;
   font-size: 16px;
+}
+
+/* ==================== Адаптивность ====================
+   Базовые стили — мобильные (< 576px): рамка 402px, 1 колонка карточек.
+   Планшеты (576–991px): рамка 640px, 2 колонки.
+   Десктоп (≥ 992px): рамка 1024px, 3 колонки. */
+
+/* Планшеты */
+@media (min-width: 576px) {
+  :root {
+    --app-max-width: 640px;
+  }
+
+  .indicator-grid {
+    grid-template-columns: repeat(2, minmax(var(--card-min-width), 1fr));
+  }
+}
+
+/* Десктоп */
+@media (min-width: 992px) {
+  :root {
+    --app-max-width: 1024px;
+  }
+
+  .indicator-grid {
+    grid-template-columns: repeat(3, minmax(var(--card-min-width), 1fr));
+  }
+
+  .app-header {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+
+  /* Нижняя навигация на широком экране собирается по центру, а не растягивается */
+  .bottom-navbar {
+    justify-content: center;
+    gap: clamp(32px, 6vw, 96px);
+  }
+
+  .bottom-navbar .nav-item {
+    flex: 0 0 auto;
+    min-width: 96px;
+  }
+}
+
+/* Очень узкие телефоны */
+@media (max-width: 359.98px) {
+  .app-header {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  .logo-text {
+    font-size: 20px;
+  }
+
+  .contacts-text {
+    font-size: 12px;
+  }
+
+  .app-header img {
+    width: 36px;
+    height: 36px;
+  }
 }

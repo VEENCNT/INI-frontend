@@ -59,18 +59,18 @@ const BiochemicalIndicatorGridPage: React.FC = () => {
         Поиск
       </Button>
 
-      <div className="row g-2">
+      {/* Адаптивная сетка: 1 колонка на телефоне, 2 на планшете, 3 на десктопе */}
+      <div className="indicator-grid">
         {indicators.map((indicator) => (
-          <div className="col-6" key={indicator.indicatorId}>
-            <BiochemicalIndicatorGridCard
-              indicator={indicator}
-              isLiked={indicator.isLiked}
-              canInteract={isAuthenticated}
-              canDelete={isAuthenticated && indicator.isOwner}
-              onLike={(id) => dispatch(toggleIndicatorLike(id))}
-              onDelete={(id) => dispatch(removeIndicator(id))}
-            />
-          </div>
+          <BiochemicalIndicatorGridCard
+            key={indicator.indicatorId}
+            indicator={indicator}
+            isLiked={indicator.isLiked}
+            canInteract={isAuthenticated}
+            canDelete={isAuthenticated && indicator.isOwner}
+            onLike={(id) => dispatch(toggleIndicatorLike(id))}
+            onDelete={(id) => dispatch(removeIndicator(id))}
+          />
         ))}
       </div>
     </div>
