@@ -39,25 +39,42 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
 
+  // Видео отдаём напрямую браузеру: Range-запросы (206 Partial Content)
+  // нельзя класть в Cache API, иначе service worker падает с ошибкой.
+  if (request.headers.has('range') || /\.(mp4|webm|mov|m4v)$/i.test(url.pathname)) return;
+
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() =>
-        caches.match(INDEX, { ignoreSearch: true }).then((cached) => cached || caches.match("/INI-frontend/")),
-      ),
+      fetch(request).catch(async () => (
+        (await caches.match(INDEX, { ignoreSearch: true })) ||
+        (await caches.match("/INI-frontend/")) ||
+        Response.error()
+      )),
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cached) => {
+    (async () => {
+      const cached = await caches.match(request);
       if (cached) return cached;
-      return fetch(request).then((response) => {
-        if (response.ok && response.type === 'basic') {
+
+      try {
+        const response = await fetch(request);
+        if (
+          response.status === 200 &&
+          response.type === 'basic' &&
+          !response.headers.has('Content-Range')
+        ) {
           const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(request, copy));
+          caches.open(CACHE)
+            .then((cache) => cache.put(request, copy))
+            .catch(() => undefined);
         }
         return response;
-      });
-    }).catch(() => caches.match(INDEX, { ignoreSearch: true })),
+      } catch {
+        return (await caches.match(request)) || Response.error();
+      }
+    })(),
   );
 });
