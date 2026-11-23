@@ -1,8 +1,14 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
+// Для GitHub Pages базовый путь задаётся переменной окружения VITE_BASE_PATH
+// (например, /INI-frontend/); локально используется корень сайта.
+const rawBase = process.env.VITE_BASE_PATH ?? '/'
+const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`
+
 // https://vite.dev/config/
 export default defineConfig({
+  base,
   plugins: [react()],
   server: {
     proxy: {

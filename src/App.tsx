@@ -1,5 +1,7 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// HashRouter выбран для надёжной работы на GitHub Pages: прямые ссылки
+// на вложенные маршруты не требуют 404.html и работают в офлайн-режиме PWA.
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { setCredentials, setError, setLoading } from '../features/auth/authSlice';
 import { loginRequest } from '../api/authApi';
+import { isMockMode } from '../api/mockApi';
 import LoadingOverlay from '../components/LoadingOverlay';
 
 const UserLoginPage: React.FC = () => {
@@ -62,6 +63,12 @@ const UserLoginPage: React.FC = () => {
         <Button variant="purple" type="submit" className="w-100 py-2 fw-bold" disabled={loading}>
           {loading ? 'Вход...' : 'Войти'}
         </Button>
+
+        {isMockMode() && (
+          <div className="text-muted small text-center mt-3">
+            Демо-режим: подойдут любые логин и пароль
+          </div>
+        )}
       </Form>
     </Container>
   );
