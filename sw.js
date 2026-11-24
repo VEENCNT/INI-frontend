@@ -2,7 +2,7 @@
 const PRECACHE = [
   "/INI-frontend/",
   "/INI-frontend/assets/index-DNMTBQ_L.css",
-  "/INI-frontend/assets/index-tIqWWZOI.js",
+  "/INI-frontend/assets/index-cjeIpZmC.js",
   "/INI-frontend/favicon.svg",
   "/INI-frontend/icons/apple-touch-icon.png",
   "/INI-frontend/icons/icon-192.png",
@@ -11,7 +11,7 @@ const PRECACHE = [
   "/INI-frontend/index.html",
   "/INI-frontend/manifest.json"
 ];
-const CACHE = 'ini-frontend-3e91add1315e';
+const CACHE = 'ini-frontend-650af4e517a6';
 const INDEX = "/INI-frontend/index.html";
 
 self.addEventListener('install', (event) => {
